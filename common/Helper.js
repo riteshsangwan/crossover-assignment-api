@@ -182,18 +182,6 @@ function parseLimitAndOffset(criteria) {
   return lo;
 }
 
-/**
- * Wrap the generator function, execute the generator and return promise
- *
- * @param   {Function}    fn                the generator function to wrap
- * @param   {Array}       args              the variable arguments to pass to wrapped function
- * @return  {Promise}                       the promise which is resolved from return value of generator function
- */
-function executeWrapped(fn, ...args) {
-  const wrapped = co.wrap(fn);
-  return wrapped(...args);
-}
-
 
 module.exports = {
   wrapExpress,
@@ -204,5 +192,4 @@ module.exports = {
   getRawObject,
   stringify,
   parseLimitAndOffset,
-  executeWrapped,
 };

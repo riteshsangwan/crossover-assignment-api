@@ -23,7 +23,7 @@ module.exports = {
   REQUEST_ID_ATTRIBUTE: 'id',
   // db connection options
   db: {
-    url: 'mongo://localhost:27017/assignment-app',
+    url: 'mongodb://localhost:27017/assignment-app',
     poolSize: 100,
   },
   pagination: {

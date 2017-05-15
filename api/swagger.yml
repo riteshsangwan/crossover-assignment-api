@@ -1,0 +1,324 @@
+# Assignment app api version 1
+swagger: '2.0'
+info:
+  title: Assignment app api
+  description: Assignment app api version 1. Initial release
+  version: "1.0.0"
+# the domain of the service
+host: localhost:4000
+# array of all schemes that API supports
+schemes:
+  - https
+  - http
+# will be prefixed to all paths
+basePath: /api/v1
+produces:
+  - application/json
+consumes:
+  - application/json
+paths:
+  /donors/search:
+    get:
+      summary: Search all the donor's postings.
+      description: |
+        Search all the donor postings.
+        The donor postings are searched within a given bounds.
+      parameters:
+        -
+          $ref: "#/parameters/Limit"
+        -
+          $ref: "#/parameters/Offset"
+        -
+          $ref: "#/parameters/NE"
+        -
+          $ref: "#/parameters/SW"
+      tags:
+        - donors
+      responses:
+        200:
+          description: List of donor's postings
+          schema:
+            type: object
+            properties:
+              paging:
+                type: object
+                properties:
+                  next:
+                    type: number
+                    format: int32
+                    description: The next offset
+                  total:
+                    type: number
+                    format: int32
+                    description: Total number of records for specified filter criteria
+              data:
+                $ref: "#/definitions/Donors"
+        400:
+          description: If the search criteria is not valid
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: Unknown error, Occurs in very rare situation, this indicates that server is unable to process the request and is unaware of the error condition
+          schema:
+            $ref: "#/definitions/Error"
+  /donors/{donorId}:
+    delete:
+      summary: Delete a donor's posting
+      description: |
+        Delete a donor posting
+      parameters:
+        -
+          $ref: "#/parameters/DonorId"
+      tags:
+        - donors
+      responses:
+        200:
+          description: The donor's posting deleted successfully
+        404:
+          description: Donor not found with specified id
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: Unknown error, Occurs in very rare situation, this indicates that server is unable to process the request and is unaware of the error condition
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      summary: Update a donor's posting
+      description: |
+        Update a donor posting
+      parameters:
+        -
+          $ref: "#/parameters/DonorId"
+        - name: body
+          in: body
+          description: The request payload
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateDonorReq"
+      tags:
+        - donors
+      responses:
+        200:
+          description: The donor's posting updated successfully
+          schema:
+            $ref: "#/definitions/Donor"
+        400:
+          description: Invalid request payload
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Donor not found with specified id
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: Unknown error, Occurs in very rare situation, this indicates that server is unable to process the request and is unaware of the error condition
+          schema:
+            $ref: "#/definitions/Error"
+  /donors:
+    post:
+      summary: Create a donor posting
+      description: |
+        Create a donor posting.
+        Donor ip address is also saved among other details
+      parameters:
+        - name: body
+          in: body
+          description: The request payload
+          required: true
+          schema:
+            $ref: "#/definitions/AddDonorReq"
+      tags:
+        - donors
+      responses:
+        200:
+          description: The donor posting successfully
+          schema:
+            $ref: "#/definitions/Donor"
+        400:
+          description: The request payload is invalid
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: Unknown error, Occurs in very rare situation, this indicates that server is unable to process the request and is unaware of the error condition
+          schema:
+            $ref: "#/definitions/Error"
+parameters:
+  DonorId:
+    name: donorId
+    in: path
+    description: The donor id
+    required: true
+    type: string
+  Limit:
+    name: limit
+    in: query
+    description: The number of records to return, default will be 20
+    required: false
+    type: number
+    format: int64
+  Offset:
+    name: offset
+    in: query
+    description: The number of records to skip, default will be 0
+    required: false
+    type: number
+    format: int64
+  NE:
+    name: ne
+    in: query
+    description: The north east bound coordinates values
+    required: true
+    type: array
+    items:
+      type: number
+  SW:
+    name: sw
+    in: query
+    description: The south west bound coordinates values
+    required: true
+    type: array
+    items:
+      type: number
+definitions:
+  Donor:
+    type: object
+    required:
+      - id
+      - firstName
+      - lastName
+      - contactNumber
+      - email
+      - bloodGroup
+      - address
+      - ip
+      - location
+    properties:
+      id:
+        type: string
+        description: The unique id of the donor posting
+      firstName:
+        type: string
+        description: The first name of the donor
+      lastName:
+        type: string
+        description: The last name of the donor
+      contactNumber:
+        type: string
+        description: The contact number of donor
+      email:
+        type: string
+        description: The donor's email address
+      bloodGroup:
+        type: string
+        description: |
+          The donor's blood group.
+          Possible values are `A+`, `B+`, `AB+`, `A-`, `B-`, `AB-`, `O+`, `O-`
+      address:
+        type: string
+        description: The donor's physical address
+      ip:
+        type: string
+        description: The donor's IP address. Auto detected from request
+      location:
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            description: The geometry type. Must always be `Point`
+          coordinates:
+            type: array
+            items:
+              type: number
+              description: The donor coordinates. Must be in [lng, lat] format.
+  Donors:
+    type: array
+    items:
+      $ref: "#/definitions/Donor"
+  AddDonorReq:
+    required:
+      - firstName
+      - lastName
+      - contactNumber
+      - email
+      - bloodGroup
+      - address
+      - coordinates
+    properties:
+      firstName:
+        type: string
+        description: The first name of the donor
+      lastName:
+        type: string
+        description: The last name of the donor
+      contactNumber:
+        type: string
+        description: The contact number of donor
+      email:
+        type: string
+        description: The donor's email address
+      bloodGroup:
+        type: string
+        description: |
+          The donor's blood group.
+          Possible values are `A+`, `B+`, `AB+`, `A-`, `B-`, `AB-`, `O+`, `O-`
+      address:
+        type: string
+        description: The donor's physical address
+      coordinates:
+        type: object
+        required:
+          - lat
+          - lng
+        properties:
+          lat:
+            type: number
+            description: The latitude coordinate
+          lng:
+            type: number
+            description: The longitude coordinate
+  UpdateDonorReq:
+    properties:
+      firstName:
+        type: string
+        description: The first name of the donor
+      lastName:
+        type: string
+        description: The last name of the donor
+      contactNumber:
+        type: string
+        description: The contact number of donor
+      email:
+        type: string
+        description: The donor's email address
+      bloodGroup:
+        type: string
+        description: |
+          The donor's blood group.
+          Possible values are `A+`, `B+`, `AB+`, `A-`, `B-`, `AB-`, `O+`, `O-`
+      address:
+        type: string
+        description: The donor's physical address
+  Error:
+    type: object
+    required:
+      - requestId
+      - message
+      - code
+      - status
+    properties:
+      requestId:
+        type: string
+        description: The unique UUID assigned to this request. This should be quoted while raising a support request from backend team.
+      message:
+        type: string
+        description: The general description of probable cause of error.
+      code:
+        type: string
+        description: The unique error code, that defines this error. This error code can be referenced to raise support request to backend team.
+      status:
+        type: integer
+        format: int32
+        description: The http status code assigned to this error

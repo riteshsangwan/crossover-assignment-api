@@ -1,0 +1,30 @@
+{
+    "donors": [
+        {
+            "firstName": "test",
+            "lastName": "donor1",
+            "contactNumber": "+12024044567",
+            "email": "test@testdonor.com",
+            "bloodGroup": "AB+",
+            "address": "Manhattan, USA",
+            "ip": "34.56.34.23",
+            "location": {
+                "type": "Point",
+                "coordinates": [-73.947261, 40.733290]
+            }
+        },
+        {
+            "firstName": "test",
+            "lastName": "donor2",
+            "contactNumber": "+13024044567",
+            "email": "test@testdonor2.com",
+            "bloodGroup": "B+",
+            "address": "Manhattan, USA",
+            "ip": "34.36.34.23",
+            "location": {
+                "type": "Point",
+                "coordinates": [-73.956946, 40.732443]
+            }
+        }
+    ]
+}

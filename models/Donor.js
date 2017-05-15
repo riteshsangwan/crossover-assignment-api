@@ -30,6 +30,8 @@ const DonorSchema = new mongoose.Schema({
   location: { type: DonorLocationSchema, required: true },
 });
 
+DonorSchema.index({ location: '2dsphere' });
+
 if (!DonorSchema.options.toObject) {
   DonorSchema.options.toObject = { };
 }
@@ -44,7 +46,7 @@ if (!DonorSchema.options.toObject) {
  */
 DonorSchema.options.toObject.transform = function transform(doc, ret, options) {    // eslint-disable-line no-unused-vars
   const sanitized = _.omit(ret, '__v', '_id');
-  sanitized.id = doc._id;
+  sanitized.id = doc._id.toString();
   return sanitized;
 };
 

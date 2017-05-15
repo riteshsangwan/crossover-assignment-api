@@ -12,6 +12,9 @@
  */
 
 const joi = require('joi');
+
+joi.objectId = require('joi-objectid')(joi);
+
 const models = require('../models');
 const helper = require('../common/Helper');
 const errors = require('common-errors');
@@ -34,16 +37,38 @@ const BLOOD_GROUPS = constants.BLOOD_GROUPS;
  */
 function* search(criteria) {
   const lo = helper.parseLimitAndOffset(criteria);
+  const ne = criteria.ne;
+  const sw = criteria.sw;
+  const nw = [sw[0], ne[1]];
+  const se = [ne[0], sw[1]];
 
   const donors = yield Donor.find({
-    $geoWithin: {
-      $box: [criteria.sw, criteria.ne],
+    location: {
+      $geoWithin: {
+        $geometry: {
+          type: 'Polygon',
+          coordinates: [[ne, nw, sw, se, ne]],
+          crs: {
+            type: 'name',
+            properties: { name: 'urn:x-mongodb:crs:strictwinding:EPSG:4326' },
+          },
+        },
+      },
     },
-  }, { limit: lo.limit, skip: lo.offset });
+  }).skip(lo.offset).limit(lo.limit);
 
   const total = yield Donor.count({
-    $geoWithin: {
-      $box: [criteria.sw, criteria.ne],
+    location: {
+      $geoWithin: {
+        $geometry: {
+          type: 'Polygon',
+          coordinates: [[ne, nw, sw, se, ne]],
+          crs: {
+            type: 'name',
+            properties: { name: 'urn:x-mongodb:crs:strictwinding:EPSG:4326' },
+          },
+        },
+      },
     },
   });
 
@@ -54,7 +79,7 @@ function* search(criteria) {
 
 // joi validation schema for search
 search.schema = {
-  criteria: joi.object.keys({
+  criteria: joi.object().keys({
     limit: joi.number().integer().min(0).default(config.pagination.limit),
     offset: joi.number().integer().min(0).default(config.pagination.offset),
     // the north east bound
@@ -86,7 +111,7 @@ function* create(ip, entity) {
 // joi validation schema for create
 create.schema = {
   ip: joi.string().required(),
-  entity: joi.object.keys({
+  entity: joi.object().keys({
     firstName: joi.string().required(),
     lastName: joi.string().required(),
     // the country code can be between 1 to 3 digits and mobile number only 10 digits
@@ -120,16 +145,16 @@ function* update(id, ip, entity) {
     throw new errors.NotFoundError('donor posting not found with specified id',
       new Error(ErrorCodes.RESOURCE_NOT_FOUND));
   }
-  _.extend(existing, entity);
+  _.extend(existing, entity, { ip });
   const updated = yield existing.save();
   return helper.getRawObject(updated);
 }
 
 // joi validation schema for update
 update.schema = {
-  id: joi.string().guid({ version: 'uuidv4' }).required(),
+  id: joi.objectId().required(),
   ip: joi.string().required(),
-  entity: joi.object.keys({
+  entity: joi.object().keys({
     firstName: joi.string(),
     lastName: joi.string(),
     // the country code can be between 1 to 3 digits and mobile number only 10 digits
@@ -162,7 +187,7 @@ function* deleteDonor(id) {
 
 // joi validation schema for deleteDonor
 deleteDonor.schema = {
-  id: joi.string().guid({ version: 'uuidv4' }).required(),
+  id: joi.objectId().required(),
 };
 
 module.exports = {
