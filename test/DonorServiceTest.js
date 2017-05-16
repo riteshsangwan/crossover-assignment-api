@@ -153,5 +153,39 @@ describe('unit', function () {
         done();
       }).catch(done);
     });
+
+
+    it('[get], should throw error for non existent donor posting', function (done) {
+      co(function* () {
+        yield donorService.get(ObjectID.generate());
+      }).then(() => {
+        done(new Error('should not have been called'));
+      }).catch((err) => {
+        helper.assertError(err, 'donor posting not found with specified id', done);
+      });
+    });
+
+    it('[get], should be successful', function (done) {
+      co(function* () {
+        const donor = yield donorService.create('34.45.55.67', {
+          firstName: 'test',
+          lastName: 'donor',
+          contactNumber: '+12024077898',
+          email: 'test@donor.com',
+          bloodGroup: 'O-',
+          address: '345, Highland Street, New Jersey, USA',
+          coordinates: {
+            lat: 28.439801,
+            lng: 77.118279,
+          },
+        });
+
+        return yield donorService.get(donor.id);
+      }).then((response) => {
+        expect(response).to.exist();
+        helper.validateModel('#/definitions/Donor', response, done);
+      }).catch(done);
+    });
+
   });
 });

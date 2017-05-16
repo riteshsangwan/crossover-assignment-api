@@ -34,7 +34,9 @@ function* search(req, res) {
  * @return  {Void}                    this method doesn't return anything
  */
 function* create(req, res) {
-  res.status(httpStatus.CREATED).json(yield donorService.create(req.clientIp, req.body));
+  const response = yield donorService.create(req.clientIp, req.body);
+  res.io.emit('donor-posting-change');
+  res.status(httpStatus.CREATED).json(response);
 }
 
 /**
@@ -45,7 +47,9 @@ function* create(req, res) {
  * @return  {Void}                    this method doesn't return anything
  */
 function* update(req, res) {
-  res.status(httpStatus.CREATED).json(yield donorService.update(req.id, req.clientIp, req.body));
+  const response = yield donorService.update(req.params.id, req.clientIp, req.body);
+  res.io.emit('donor-posting-change');
+  res.status(httpStatus.CREATED).json(response);
 }
 
 /**
@@ -56,7 +60,20 @@ function* update(req, res) {
  * @return  {Void}                    this method doesn't return anything
  */
 function* deleteDonor(req, res) {
-  res.status(httpStatus.OK).json(yield donorService.delete(req.id));
+  yield donorService.delete(req.params.id);
+  res.io.emit('donor-posting-change');
+  res.status(httpStatus.OK).json();
+}
+
+/**
+ * Get details about a donor posting
+ *
+ * @param   {Object}    req           express request instance
+ * @param   {Object}    res           express response instance
+ * @return  {Void}                    this method doesn't return anything
+ */
+function* get(req, res) {
+  res.status(httpStatus.OK).json(yield donorService.get(req.params.id));
 }
 
 module.exports = {
@@ -64,4 +81,5 @@ module.exports = {
   create,
   update,
   delete: deleteDonor,
+  get,
 };

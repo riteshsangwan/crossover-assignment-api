@@ -33,5 +33,9 @@ module.exports = {
       controller: 'DonorController',
       method: 'delete',
     },
+    get: {
+      controller: 'DonorController',
+      method: 'get',
+    },
   },
 };

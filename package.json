@@ -4,7 +4,7 @@
   "description": "Assignment App: Backend API services",
   "main": "server.js",
   "scripts": {
-    "start": "NODE_ENV=development node app/server.js",
+    "start": "NODE_ENV=development node server.js",
     "lint": "eslint . || true",
     "lint:fix": "eslint . --fix || true",
     "seed": "node ./setup/seed.js",
@@ -22,6 +22,7 @@
     "co": "^4.6.0",
     "common-errors": "^1.0.0",
     "config": "^1.25.1",
+    "cors": "^2.8.3",
     "dotenv": "^4.0.0",
     "errio": "^1.2.2",
     "express": "^4.15.2",

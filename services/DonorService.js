@@ -74,7 +74,12 @@ function* search(criteria) {
 
   const docs = helper.getRawObject(donors);
 
-  return { items: docs, paging: { total, next: (lo.limit + lo.offset) } };
+  const response = { items: docs, paging: { total } };
+  const next = lo.limit + lo.offset;
+  if (total > next) {
+    response.paging.next = next;
+  }
+  return response;
 }
 
 // joi validation schema for search
@@ -119,7 +124,7 @@ create.schema = {
     // +91 for India
     // +880 for Bangladesh
     // so the contact number must start with 0 or + and can have min 11 and max 13 digits
-    contactNumber: joi.string().regex(/^([0]{2})|(\+)\d{11,13}$/).required(),
+    contactNumber: joi.string().regex(/^([0]{2})|(\+)\d{11,13}$/i).required(),
     email: joi.string().email().required(),
     bloodGroup: joi.string().valid(_.values(BLOOD_GROUPS)).required(),
     address: joi.string().required(),
@@ -190,9 +195,31 @@ deleteDonor.schema = {
   id: joi.objectId().required(),
 };
 
+/**
+ * Get details about a donor posting
+ *
+ * @param   {String}    id            the id of the donor
+ * @return  {Object}                  the Donor resource
+ */
+function* get(id) {
+  const existing = yield Donor.findById(id);
+
+  if (!existing) {
+    throw new errors.NotFoundError('donor posting not found with specified id',
+      new Error(ErrorCodes.RESOURCE_NOT_FOUND));
+  }
+  return helper.getRawObject(existing);
+}
+
+// joi validation schema for get
+get.schema = {
+  id: joi.objectId().required(),
+};
+
 module.exports = {
   search,
   create,
   update,
   delete: deleteDonor,
+  get,
 };

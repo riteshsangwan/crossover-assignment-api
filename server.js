@@ -19,6 +19,7 @@ const path = require('path');
 const config = require('config');
 const expressRequestId = require('express-request-id');
 const requestIp = require('request-ip');
+const cors = require('cors');
 
 const helper = require('./common/Helper');
 const errorMiddleware = require('./middlewares/ErrorMiddleware');
@@ -30,6 +31,7 @@ const io = require('socket.io')(http);
 
 app.set('port', config.PORT);
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressRequestId({ attributeName: config.REQUEST_ID_ATTRIBUTE }));
