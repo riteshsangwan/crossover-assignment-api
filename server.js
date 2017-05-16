@@ -35,7 +35,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressRequestId({ attributeName: config.REQUEST_ID_ATTRIBUTE }));
-app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
 const apiRouter = express.Router();
 
